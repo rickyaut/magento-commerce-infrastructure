@@ -1,8 +1,8 @@
 replicaCount: 1
 image:
-  repository: localhost/magento-web
+  repository: localhost/ricky/magento-web
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Never
 service:
   type: ClusterIP
   port: 80
