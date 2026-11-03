@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U platform"]
+      test: ["CMD-SHELL", "pg_isready -U platform -d magento_ai"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -19,29 +19,6 @@ services:
     image: docker.io/library/redis:7-alpine
     ports:
       - "6379:6379"
-
-  magento-commerce-bff:
-    build:
-      context: ../../magento-commerce-bff
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/magento_ai
-      SPRING_DATASOURCE_USERNAME: platform
-      SPRING_DATASOURCE_PASSWORD: change-me
-      MAGENTO_BASE_URL: http://magento-web
-      MAGENTO_ADMIN_TOKEN: change-me
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  react-admin:
-    build:
-      context: ../../frontend/react-admin
-    ports:
-      - "3000:80"
-    depends_on:
-      - magento-commerce-bff
 
 volumes:
   postgres_data:
