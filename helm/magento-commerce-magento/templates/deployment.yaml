@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: magento
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: magento
+  template:
+    metadata:
+      labels:
+        app: magento
+    spec:
+      containers:
+        - name: magento
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          env:
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: apache-conf
+              mountPath: /etc/apache2/sites-enabled/magento2.conf
+              subPath: magento2.conf
+            - name: apache-conf
+              mountPath: /etc/apache2/sites-enabled/magento2-ssl.conf
+              subPath: magento2-ssl.conf
+          readinessProbe:
+            httpGet:
+              path: /health_check.php
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: apache-conf
+          configMap:
+            name: magento-apache-conf

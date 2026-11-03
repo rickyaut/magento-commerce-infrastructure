@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: magento-apache-conf
+data:
+  magento2.conf: |
+    <VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/magento2/pub
+        ServerName localhost
+
+        <Directory /var/www/magento2/pub/>
+                Options Indexes FollowSymLinks
+                AllowOverride All
+                Require all granted
+                RewriteEngine On
+                Header always set Access-Control-Allow-Origin "*"
+                Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+                Header always set Access-Control-Allow-Headers "Content-Type, Authorization, Store, X-Magento-Cache-Id"
+        </Directory>
+
+        LogLevel info rewrite:trace3
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+
+  magento2-ssl.conf: |
+    <VirtualHost *:443>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/magento2/pub
+        ServerName localhost
+        SSLCertificateFile "/etc/ssl/certs/magento.crt"
+        SSLCertificateKeyFile "/etc/ssl/private/magento.key"
+
+        <Directory /var/www/magento2/pub/>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride All
+                Order allow,deny
+                allow from all
+        </Directory>
+
+        LogLevel info rewrite:trace3
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>

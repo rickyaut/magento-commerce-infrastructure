@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: "{{ .Values.mariadb.image }}"
+          env:
+            - name: TZ
+              value: {{ .Values.env.TZ | quote }}
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.mariadb.rootPassword | quote }}
+            - name: MYSQL_USER
+              value: {{ .Values.env.DB_USER | quote }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.env.DB_PWD | quote }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.env.DB_NAME | quote }}
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysqldata
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mysqldata
+          persistentVolumeClaim:
+            claimName: mysqldata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  selector:
+    app: mariadb
+  ports:
+    - port: 3306
+      targetPort: 3306
