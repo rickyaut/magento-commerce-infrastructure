@@ -23,9 +23,9 @@ mariadb:
   image: mariadb:10.6.13
   rootPassword: magento2
   storage: 10Gi
-  hostPath: ./magento-commerce-magento/mysqldata
+  hostPath: /data/magento/mysqldata
 opensearch:
   image: opensearchproject/opensearch:2
   javaOpts: "-Xms512m -Xmx512m"
   storage: 5Gi
-  hostPath: ./magento-commerce-magento/opensearch/data
+  hostPath: /data/magento/opensearch
